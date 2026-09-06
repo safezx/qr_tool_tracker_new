@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Вход для администратора{% endblock %}
+{% block content %}
+<div class="center-page">
+  <div class="card auth-card">
+    <h1>Вход для администратора</h1>
+    <p class="text-muted">Сотрудникам логин не нужен — просто отсканируйте QR-код на инструменте.</p>
+
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      {{ field(form.username, autofocus=true) }}
+      {{ field(form.password) }}
+      <button type="submit" class="btn btn--primary btn--block">Войти</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

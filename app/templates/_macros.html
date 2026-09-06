@@ -1,0 +1,21 @@
+{# Общие переиспользуемые кусочки разметки для форм. #}
+
+{% macro field(f) %}
+<div class="field">
+  {{ f.label }}
+  {{ f(**kwargs) }}
+  {% if f.errors %}
+  <div class="form-errors">{{ f.errors|join(' ') }}</div>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{% macro checkbox_field(f) %}
+<div class="field checkbox-field">
+  {{ f() }}
+  {{ f.label }}
+  {% if f.errors %}
+  <div class="form-errors">{{ f.errors|join(' ') }}</div>
+  {% endif %}
+</div>
+{% endmacro %}

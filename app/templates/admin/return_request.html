@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}Возврат инструмента{% endblock %}
+{% block content %}
+
+<h1>Возврат инструмента</h1>
+
+<div class="card" style="max-width:520px;">
+  <p><strong>Инструмент:</strong> {{ tool_request.tool.name if tool_request.tool else '—' }}</p>
+  <p><strong>Кто взял:</strong> {{ tool_request.employee.full_name() if tool_request.employee else '—' }}</p>
+  <p><strong>Дата выдачи:</strong> {{ format_moscow(tool_request.request_time) }}</p>
+
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+    {{ field(form.condition_after, placeholder="Например: исправен, есть царапины") }}
+    {{ field(form.notes, rows=3) }}
+
+    <div class="btn-row">
+      <button type="submit" class="btn btn--primary">Подтвердить возврат</button>
+      <a class="btn btn--ghost" href="{{ url_for('admin.dashboard') }}">Отмена</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

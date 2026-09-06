@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Дашборд{% endblock %}
+{% block content %}
+
+<h1>Дашборд</h1>
+
+<div class="stat-grid">
+  <div class="stat-card stat-card--primary">
+    <div class="stat-card__label">Инструментов всего</div>
+    <div class="stat-card__value">{{ stats.total_tools }}</div>
+  </div>
+  <div class="stat-card stat-card--success">
+    <div class="stat-card__label">Доступно</div>
+    <div class="stat-card__value">{{ stats.available_tools }}</div>
+  </div>
+  <div class="stat-card stat-card--warning">
+    <div class="stat-card__label">Активных выдач</div>
+    <div class="stat-card__value">{{ stats.active_requests }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card__label">Сотрудников</div>
+    <div class="stat-card__value">{{ stats.total_employees }}</div>
+  </div>
+  <div class="stat-card stat-card--danger">
+    <div class="stat-card__label">Просрочено</div>
+    <div class="stat-card__value">{{ stats.overdue }}</div>
+  </div>
+</div>
+
+<form class="filter-bar" method="get">
+  <div class="field">
+    <label for="status">Статус</label>
+    <select id="status" name="status" data-autosubmit>
+      <option value="" {{ 'selected' if not status_filter }}>Все</option>
+      <option value="approved" {{ 'selected' if status_filter == 'approved' }}>Выданные</option>
+      <option value="returned" {{ 'selected' if status_filter == 'returned' }}>Возвращённые</option>
+    </select>
+  </div>
+  <div class="field">
+    <label for="search">Сотрудник</label>
+    <input type="text" id="search" name="search" value="{{ search }}" placeholder="Имя или фамилия">
+  </div>
+  <button type="submit" class="btn btn--ghost">Применить</button>
+  <a class="btn btn--ghost" href="{{ url_for('admin.dashboard') }}">Сбросить</a>
+</form>
+
+<div class="card">
+  <div class="card__header">
+    <h2 style="margin:0;">Заявки</h2>
+    <span class="text-muted">Показано {{ requests|length }}</span>
+  </div>
+
+  {% if requests %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>№</th>
+          <th>Сотрудник</th>
+          <th>Инструмент</th>
+          <th>Выдан</th>
+          <th>Вернуть до</th>
+          <th>Статус</th>
+          <th>Действие</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in requests %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.employee.full_name() if r.employee else '—' }}</td>
+          <td>{{ r.tool.name if r.tool else '—' }}</td>
+          <td>{{ format_moscow(r.request_time) }}</td>
+          <td>
+            {{ r.expected_return_date.strftime('%d.%m.%Y') if r.expected_return_date else '—' }}
+            {% if r.is_overdue %}<span class="badge badge--danger">просрочено</span>{% endif %}
+          </td>
+          <td>
+            {% if r.status == 'approved' %}
+              <span class="badge badge--warning">Выдан</span>
+            {% else %}
+              <span class="badge badge--success">Возвращён</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if r.status == 'approved' %}
+              <a class="btn btn--sm btn--ghost" href="{{ url_for('admin.return_request', request_id=r.id) }}">Вернуть</a>
+            {% else %}
+              <span class="text-muted">{{ format_moscow(r.actual_return_time) }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">Заявок пока нет.</div>
+  {% endif %}
+</div>
+
+{% endblock %}

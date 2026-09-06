@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Инструменты{% endblock %}
+{% block content %}
+
+<h1>Инструменты</h1>
+
+{% if my_rows %}
+<div class="card">
+  <h2>🧰 У вас на руках</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Инструмент</th>
+          <th>Категория</th>
+          <th>Вернуть до</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in my_rows %}
+        <tr>
+          <td>{{ row.tool.name }}</td>
+          <td>{{ row.tool.category or '—' }}</td>
+          <td>
+            {{ row.expected_return_date.strftime('%d.%m.%Y') }}
+            {% if row.is_overdue %}<span class="badge badge--danger">просрочено</span>{% endif %}
+          </td>
+          <td>
+            <a class="btn btn--sm btn--ghost" href="{{ url_for('employee.tool_view', code=row.tool.qr_code) }}">Открыть</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<form class="filter-bar" method="get">
+  <div class="field">
+    <label for="search">Поиск по названию</label>
+    <input type="text" id="search" name="search" value="{{ search }}">
+  </div>
+  <div class="field">
+    <label for="category">Категория</label>
+    <select id="category" name="category" data-autosubmit>
+      <option value="">Все</option>
+      {% for c in categories %}
+      <option value="{{ c }}" {{ 'selected' if category == c }}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit" class="btn btn--ghost">Применить</button>
+  <a class="btn btn--ghost" href="{{ url_for('employee.tools_catalog') }}">Сбросить</a>
+</form>
+
+<div class="card">
+  <div class="card__header">
+    <h2 style="margin:0;">Все инструменты</h2>
+    <span class="text-muted">Показано {{ rows|length }}</span>
+  </div>
+
+  {% if rows %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Инструмент</th>
+          <th>Категория</th>
+          <th>Место хранения</th>
+          <th>Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>
+            {{ row.tool.name }}
+            {% if row.is_mine %}<span class="badge badge--info">Ваш</span>{% endif %}
+          </td>
+          <td>{{ row.tool.category or '—' }}</td>
+          <td>{{ row.tool.location or '—' }}</td>
+          <td>
+            {% if row.expected_return_date %}
+              <span class="badge badge--danger">Занят</span>
+              <span class="text-muted">— освободится {{ row.expected_return_date.strftime('%d.%m.%Y') }}</span>
+              {% if row.is_overdue %}<span class="badge badge--danger">просрочено</span>{% endif %}
+            {% else %}
+              <span class="badge badge--success">Свободен</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="text-muted" style="margin-top:var(--space-4);">
+    Чтобы взять свободный инструмент, отсканируйте QR-код на нём.
+  </p>
+  {% else %}
+  <div class="empty-state">Инструменты не найдены.</div>
+  {% endif %}
+</div>
+
+{% endblock %}

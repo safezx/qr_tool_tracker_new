@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Ошибка сервера{% endblock %}
+{% block content %}
+<div class="center-page">
+  <div class="card auth-card" style="text-align:center;">
+    <h1>500</h1>
+    <p>Что-то пошло не так на сервере. Попробуйте ещё раз чуть позже.</p>
+    <a class="btn btn--primary" href="{{ url_for('employee.home') }}">На главную</a>
+  </div>
+</div>
+{% endblock %}

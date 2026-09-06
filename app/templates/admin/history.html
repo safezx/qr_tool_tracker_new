@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}История возвратов{% endblock %}
+{% block content %}
+
+<h1>История возвратов</h1>
+
+<div class="stat-grid">
+  <div class="stat-card stat-card--primary">
+    <div class="stat-card__label">Всего возвратов</div>
+    <div class="stat-card__value">{{ total_returned }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card__label">Суммарно дней использования</div>
+    <div class="stat-card__value">{{ total_usage_days }}</div>
+  </div>
+  <div class="stat-card stat-card--success">
+    <div class="stat-card__label">Среднее время использования</div>
+    <div class="stat-card__value">{{ avg_usage_days }} дн.</div>
+  </div>
+</div>
+
+<form class="filter-bar" method="get">
+  <div class="field">
+    <label for="date_from">С даты</label>
+    <input type="date" id="date_from" name="date_from" value="{{ date_from }}">
+  </div>
+  <div class="field">
+    <label for="date_to">По дату</label>
+    <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
+  </div>
+  <div class="field">
+    <label for="search">Поиск (инструмент/сотрудник)</label>
+    <input type="text" id="search" name="search" value="{{ search }}">
+  </div>
+  <button type="submit" class="btn btn--ghost">Применить</button>
+  <a class="btn btn--ghost" href="{{ url_for('admin.history') }}">Сбросить</a>
+</form>
+
+{% if top_tools or top_employees %}
+<div class="form-grid" style="margin-bottom:var(--space-5);">
+  {% if top_tools %}
+  <div class="card">
+    <h3>🏆 Популярные инструменты</h3>
+    {% for name, count in top_tools %}
+    <div class="btn-row" style="justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--color-border);">
+      <span>{{ name }}</span><span class="badge badge--neutral">{{ count }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% if top_employees %}
+  <div class="card">
+    <h3>👥 Активные сотрудники</h3>
+    {% for name, count in top_employees %}
+    <div class="btn-row" style="justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--color-border);">
+      <span>{{ name }}</span><span class="badge badge--neutral">{{ count }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="card">
+  {% if requests %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Инструмент</th>
+          <th>Сотрудник</th>
+          <th>Выдан</th>
+          <th>Возвращён</th>
+          <th>Дней</th>
+          <th>Цель</th>
+          <th>Состояние</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in requests %}
+        <tr>
+          <td>{{ r.tool.name if r.tool else '—' }}</td>
+          <td>{{ r.employee.full_name() if r.employee else '—' }}</td>
+          <td>{{ format_moscow(r.request_time) }}</td>
+          <td>{{ format_moscow(r.actual_return_time) }}</td>
+          <td>{{ r.usage_days if r.usage_days is not none else '—' }}</td>
+          <td>{{ r.purpose or '—' }}</td>
+          <td>{{ r.condition_after or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">Пока нет ни одного возврата.</div>
+  {% endif %}
+</div>
+
+{% endblock %}

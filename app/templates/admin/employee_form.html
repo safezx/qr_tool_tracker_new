@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field, checkbox_field %}
+{% block title %}{{ 'Изменить сотрудника' if employee else 'Добавить сотрудника' }}{% endblock %}
+{% block content %}
+
+<h1>{{ 'Изменить сотрудника' if employee else 'Добавить сотрудника' }}</h1>
+
+<div class="card" style="max-width:640px;">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="form-grid">
+      {{ field(form.first_name, autofocus=true) }}
+      {{ field(form.last_name) }}
+    </div>
+
+    <div class="form-grid">
+      {{ field(form.email) }}
+      {{ field(form.phone) }}
+    </div>
+
+    <div class="form-grid">
+      {{ field(form.employee_number) }}
+      {{ field(form.department) }}
+    </div>
+
+    {{ field(form.position) }}
+
+    {% if employee %}
+      {{ checkbox_field(form.is_active) }}
+    {% endif %}
+
+    <div class="btn-row">
+      <button type="submit" class="btn btn--primary">{{ 'Сохранить' if employee else 'Добавить' }}</button>
+      <a class="btn btn--ghost" href="{{ url_for('admin.employees_list') }}">Отмена</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

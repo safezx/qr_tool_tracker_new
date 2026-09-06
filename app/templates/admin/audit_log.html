@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Аудит-лог{% endblock %}
+{% block content %}
+
+<h1>Аудит-лог</h1>
+<p class="text-muted">Журнал всех значимых действий в системе: кто, когда и что сделал.</p>
+
+<form class="filter-bar" method="get">
+  <div class="field">
+    <label for="actor_type">Кто</label>
+    <select id="actor_type" name="actor_type" data-autosubmit>
+      <option value="">Все</option>
+      <option value="admin" {{ 'selected' if actor_type == 'admin' }}>Администратор</option>
+      <option value="employee" {{ 'selected' if actor_type == 'employee' }}>Сотрудник</option>
+      <option value="system" {{ 'selected' if actor_type == 'system' }}>Система</option>
+    </select>
+  </div>
+  <div class="field">
+    <label for="entity_type">Объект</label>
+    <select id="entity_type" name="entity_type" data-autosubmit>
+      <option value="">Все</option>
+      <option value="tool" {{ 'selected' if entity_type == 'tool' }}>Инструмент</option>
+      <option value="employee" {{ 'selected' if entity_type == 'employee' }}>Сотрудник</option>
+      <option value="admin" {{ 'selected' if entity_type == 'admin' }}>Администратор</option>
+    </select>
+  </div>
+  <button type="submit" class="btn btn--ghost">Применить</button>
+  <a class="btn btn--ghost" href="{{ url_for('admin.audit_log') }}">Сбросить</a>
+</form>
+
+<div class="card">
+  {% if entries %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Когда</th>
+          <th>Кто</th>
+          <th>Действие</th>
+          <th>Объект</th>
+          <th>Детали</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in entries %}
+        <tr>
+          <td>{{ format_moscow(e.timestamp) }}</td>
+          <td>
+            {% if e.actor_type == 'admin' %}<span class="badge badge--info">Админ</span>
+            {% elif e.actor_type == 'employee' %}<span class="badge badge--neutral">Сотрудник</span>
+            {% else %}<span class="badge badge--neutral">Система</span>{% endif %}
+            {{ e.actor_name or '' }}
+          </td>
+          <td>{{ e.action }}</td>
+          <td>{{ e.entity_type }}{% if e.entity_id %} #{{ e.entity_id }}{% endif %}</td>
+          <td class="text-muted">{{ e.details or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">Записей пока нет.</div>
+  {% endif %}
+</div>
+
+{% endblock %}

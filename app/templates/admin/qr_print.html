@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Печать QR-кодов</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    body { background: #fff; }
+    .print-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding: 24px;
+    }
+    .print-card {
+      border: 1px solid #999;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      font-size: 12px;
+      break-inside: avoid;
+    }
+    .print-card img { width: 100%; max-width: 160px; }
+  </style>
+</head>
+<body>
+  <div class="no-print" style="padding:16px;">
+    <button class="btn btn--primary" onclick="window.print()">🖨️ Печать</button>
+    <button class="btn btn--ghost" onclick="window.close()">Закрыть</button>
+  </div>
+
+  <div class="print-grid">
+    {% for tool in tools %}
+    <div class="print-card">
+      <strong>{{ tool.name }}</strong>
+      <img src="{{ url_for('admin.qr_image', tool_id=tool.id) }}" alt="QR {{ tool.qr_code }}">
+      <div>{{ tool.qr_code }}</div>
+      <div>{{ tool.location or '' }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</body>
+</html>

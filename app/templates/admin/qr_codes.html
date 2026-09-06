@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}QR-коды{% endblock %}
+{% block content %}
+
+<div class="card__header" style="margin-bottom:var(--space-4);">
+  <h1 style="margin:0;">QR-коды инструментов</h1>
+  <a class="btn btn--ghost" href="{{ url_for('admin.qr_print') }}" target="_blank">🖨️ Печать всех</a>
+</div>
+
+{% for category, tools in tools_by_category.items() %}
+<h2>{{ category }}</h2>
+<div class="qr-grid" style="margin-bottom:var(--space-6);">
+  {% for tool in tools %}
+  <div class="qr-card">
+    <strong>{{ tool.name }}</strong>
+    <img src="{{ url_for('admin.qr_image', tool_id=tool.id) }}" alt="QR {{ tool.qr_code }}">
+    <div class="code">{{ tool.qr_code }}</div>
+    <div class="text-muted" style="font-size:0.8rem;margin:var(--space-2) 0;">
+      {% if tool.is_available %}Доступен{% else %}Выдан{% endif %}
+    </div>
+    <div class="btn-row" style="justify-content:center;">
+      <a class="btn btn--sm btn--ghost" href="{{ url_for('admin.qr_image', tool_id=tool.id, download=1) }}">Скачать</a>
+      <a class="btn btn--sm btn--ghost" href="{{ url_for('employee.tool_view', code=tool.qr_code) }}" target="_blank">Открыть</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">Инструментов пока нет.</div>
+{% endfor %}
+
+{% endblock %}

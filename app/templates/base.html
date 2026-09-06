@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Учёт инструментов{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="brand" href="{{ url_for('employee.home') }}">🛠️ Учёт инструментов</a>
+
+      {% if current_user.is_authenticated and current_user.role == 'admin' %}
+      <nav class="nav">
+        <a href="{{ url_for('admin.dashboard') }}" class="{{ 'is-active' if request.endpoint == 'admin.dashboard' }}">Дашборд</a>
+        <a href="{{ url_for('admin.tools_list') }}" class="{{ 'is-active' if request.endpoint and request.endpoint.startswith('admin.') and 'tool' in request.endpoint and 'qr' not in request.endpoint }}">Инструменты</a>
+        <a href="{{ url_for('admin.employees_list') }}" class="{{ 'is-active' if request.endpoint and 'employee' in request.endpoint }}">Сотрудники</a>
+        <a href="{{ url_for('admin.qr_list') }}" class="{{ 'is-active' if request.endpoint and 'qr' in request.endpoint }}">QR-коды</a>
+        <a href="{{ url_for('admin.history') }}" class="{{ 'is-active' if request.endpoint == 'admin.history' }}">История</a>
+        <a href="{{ url_for('admin.audit_log') }}" class="{{ 'is-active' if request.endpoint == 'admin.audit_log' }}">Аудит-лог</a>
+      </nav>
+      <form class="session-box" action="{{ url_for('auth.logout') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <span class="user-chip">{{ current_user.full_name }}</span>
+        <button type="submit" class="btn btn--ghost btn--sm">Выйти</button>
+      </form>
+      {% elif current_user.is_authenticated and current_user.role == 'employee' %}
+      <nav class="nav">
+        <a href="{{ url_for('employee.tools_catalog') }}" class="{{ 'is-active' if request.endpoint == 'employee.tools_catalog' }}">Инструменты</a>
+      </nav>
+      <form class="session-box" action="{{ url_for('employee_auth.logout') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <span class="user-chip">{{ current_user.full_name() }}</span>
+        <a class="btn btn--ghost btn--sm" href="{{ url_for('employee_auth.change_password') }}">Сменить пароль</a>
+        <button type="submit" class="btn btn--ghost btn--sm">Выйти</button>
+      </form>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="flash-stack">
+        {% for category, message in messages %}
+        <div class="flash flash--{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="container">Система учёта инструментов</div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

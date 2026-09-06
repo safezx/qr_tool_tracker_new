@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Доступ запрещён{% endblock %}
+{% block content %}
+<div class="center-page">
+  <div class="card auth-card" style="text-align:center;">
+    <h1>403</h1>
+    <p>У вас нет доступа к этой странице.</p>
+    <a class="btn btn--primary" href="{{ url_for('employee.home') }}">На главную</a>
+  </div>
+</div>
+{% endblock %}

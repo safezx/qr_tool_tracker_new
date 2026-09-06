@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}{{ tool.name }}{% endblock %}
+{% block content %}
+
+<div class="card">
+  <div class="tool-hero">
+    <div>
+      <h1>{{ tool.name }}</h1>
+      {% if tool.is_available %}
+        <span class="badge badge--success">Доступен</span>
+      {% else %}
+        <span class="badge badge--danger">Выдан</span>
+      {% endif %}
+    </div>
+    <div class="qr-tile">{{ tool.qr_code }}</div>
+  </div>
+
+  <div class="tool-meta">
+    {% if tool.description %}<div>{{ tool.description }}</div>{% endif %}
+    {% if tool.category %}<div><strong>Категория:</strong> {{ tool.category }}</div>{% endif %}
+    {% if tool.location %}
+      <div><strong>Место хранения:</strong> {{ tool.location }}{% if tool.storage_place %} ({{ tool.storage_place }}){% endif %}</div>
+    {% endif %}
+    {% if tool.manufacturer or tool.model %}
+      <div><strong>Производитель/модель:</strong> {{ tool.manufacturer or '—' }} {{ tool.model or '' }}</div>
+    {% endif %}
+  </div>
+</div>
+
+<p class="text-muted">Вы вошли как <strong>{{ current_user.full_name() }}</strong></p>
+
+{% if tool.is_available %}
+<div class="card" style="max-width:520px;">
+  <h2>📦 Взять инструмент</h2>
+  <form method="post" action="{{ url_for('employee.take_tool', code=tool.qr_code) }}" novalidate>
+    {{ take_form.hidden_tag() }}
+
+    {{ field(take_form.purpose, rows=2, placeholder="Например: ремонт оборудования на участке №3") }}
+
+    <div class="field">
+      {{ take_form.return_date.label }}
+      {{ take_form.return_date(min=today_str, max=max_date_str) }}
+      {% if take_form.return_date.errors %}
+        <div class="form-errors">{{ take_form.return_date.errors|join(' ') }}</div>
+      {% endif %}
+      <div class="hint">Максимальный срок — до {{ max_date_str }}</div>
+    </div>
+
+    <button type="submit" class="btn btn--primary btn--block">Взять инструмент</button>
+  </form>
+</div>
+
+{% else %}
+
+{% if active_request %}
+  {% if return_form %}
+  {# инструмент у самого сотрудника — показываем полную информацию #}
+  <div class="card" style="max-width:520px;">
+    <h2>📋 Текущая выдача</h2>
+    <p><strong>Дата выдачи:</strong> {{ format_moscow(active_request.request_time) }}</p>
+    <p><strong>Вернуть до:</strong> {{ active_request.expected_return_date.strftime('%d.%m.%Y') }}
+      {% if active_request.is_overdue %}<span class="badge badge--danger">просрочено</span>{% endif %}
+    </p>
+    {% if active_request.purpose %}<p><strong>Цель:</strong> {{ active_request.purpose }}</p>{% endif %}
+  </div>
+  {% else %}
+  {# инструмент у другого сотрудника — личность держателя не показываем #}
+  <div class="card" style="max-width:520px;">
+    <p class="text-muted" style="margin:0;">
+      Инструмент сейчас занят. Освободится
+      {{ active_request.expected_return_date.strftime('%d.%m.%Y') }}
+      {% if active_request.is_overdue %}<span class="badge badge--danger">просрочено</span>{% endif %}.
+    </p>
+  </div>
+  {% endif %}
+{% endif %}
+
+{% if return_form %}
+<div class="card" style="max-width:520px;">
+  <h2>↩️ Вернуть инструмент</h2>
+  <form method="post" action="{{ url_for('employee.return_tool', code=tool.qr_code) }}" novalidate>
+    {{ return_form.hidden_tag() }}
+    {{ field(return_form.condition_after, placeholder="Например: исправен, есть царапины") }}
+    {{ field(return_form.notes, rows=2) }}
+    <button type="submit" class="btn btn--primary btn--block">Вернуть инструмент</button>
+  </form>
+</div>
+{% endif %}
+
+{% endif %}
+
+{% endblock %}

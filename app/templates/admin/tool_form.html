@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}{{ 'Изменить инструмент' if tool else 'Добавить инструмент' }}{% endblock %}
+{% block content %}
+
+<h1>{{ 'Изменить инструмент' if tool else 'Добавить инструмент' }}</h1>
+
+{% if tool %}
+<div class="card" style="max-width:720px;">
+  <p style="margin:0;">
+    <strong>QR-код:</strong> <code>{{ tool.qr_code }}</code>
+    &middot;
+    <a href="{{ url_for('employee.tool_view', code=tool.qr_code) }}" target="_blank">Открыть страницу инструмента</a>
+    &middot;
+    <a href="{{ url_for('admin.qr_image', tool_id=tool.id) }}" target="_blank">QR-картинка</a>
+  </p>
+</div>
+{% endif %}
+
+<div class="card" style="max-width:720px;">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div class="form-grid">
+      {{ field(form.name) }}
+      <div class="field">
+        {{ form.category.label }}
+        {{ form.category(list="category-options") }}
+        <datalist id="category-options">
+          {% for c in categories %}<option value="{{ c }}">{% endfor %}
+        </datalist>
+        {% if form.category.errors %}<div class="form-errors">{{ form.category.errors|join(' ') }}</div>{% endif %}
+      </div>
+    </div>
+
+    {{ field(form.description, rows=3) }}
+
+    <div class="form-grid">
+      {{ field(form.location) }}
+      {{ field(form.storage_place) }}
+    </div>
+
+    <div class="form-grid">
+      {{ field(form.serial_number) }}
+      {{ field(form.model) }}
+    </div>
+
+    <div class="form-grid">
+      {{ field(form.manufacturer) }}
+      {{ field(form.price) }}
+    </div>
+
+    <div class="form-grid">
+      {{ field(form.purchase_date) }}
+      {{ field(form.warranty_until) }}
+    </div>
+
+    <div class="btn-row">
+      <button type="submit" class="btn btn--primary">{{ 'Сохранить' if tool else 'Добавить' }}</button>
+      <a class="btn btn--ghost" href="{{ url_for('admin.tools_list') }}">Отмена</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
